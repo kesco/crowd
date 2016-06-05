@@ -1,0 +1,9 @@
+[submodule "ext/hoedown"]
+	path = ext/hoedown
+	url = https://github.com/hoedown/hoedown.git
+[submodule "ext/yaml-cpp"]
+	path = ext/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "ext/mstch"]
+	path = ext/mstch
+	url = https://github.com/no1msd/mstch.git
