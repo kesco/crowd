@@ -17,6 +17,5 @@ int main(int argc, char** argv)
     std::cout << "yes" << std::endl;
   }
 
-  while (1);
   return 0;
 }
