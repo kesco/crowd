@@ -1,33 +1,35 @@
 #pragma once
 
 #include "html.h"
-#include "parser.hpp"
 
 #include <fstream>
 #include <string>
 
 namespace crowd {
-struct Parser {
-  virtual ~Parser() {}
+  struct Parser {
+    virtual ~Parser() { }
 
-  virtual std::string parse(const std::string&) const = 0;
-  
-  virtual std::string parse(std::ifstream&) const = 0;
-};
+    virtual std::string parse(const std::string &) const = 0;
 
-enum class MarkdownType { NORMAL, TOC };
+    virtual std::string parse(std::ifstream &) const = 0;
+  };
 
-struct MarkdownParser : Parser {
-  MarkdownParser(MarkdownType type = MarkdownType::NORMAL, int nest_level = 16);
+  enum class MarkdownType {
+    NORMAL, TOC
+  };
 
-  virtual ~MarkdownParser() override;
+  struct MarkdownParser : Parser {
+    MarkdownParser(MarkdownType type = MarkdownType::NORMAL,
+                   int nest_level = 16);
 
-  virtual std::string parse(const std::string&) const override;
-  
-  virtual std::string parse(std::ifstream&) const override;
+    virtual ~MarkdownParser() override;
 
- private:
-  hoedown_renderer* render_;
-  hoedown_document* doc_;
-};
+    virtual std::string parse(const std::string &) const override;
+
+    virtual std::string parse(std::ifstream &) const override;
+
+  private:
+    hoedown_renderer *render_;
+    hoedown_document *doc_;
+  };
 }

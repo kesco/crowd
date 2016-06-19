@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(memory_str_parse) {
 }
 
 BOOST_AUTO_TEST_CASE(file_str_parse) {
-  ifstream file("../test_markdown.md");
+  ifstream file("test_markdown.md");
   string parsed = parser_->parse(file);
   BOOST_TEST(expected_html_ == parsed);
 }

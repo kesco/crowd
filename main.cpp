@@ -3,19 +3,20 @@
 #include <iostream>
 
 using namespace std;
+using namespace crowd;
 
-int main(int argc, char** argv)
-{
-  if (argc == 0)
-  {
-    cerr << "Wrong input." << endl;
-    exit(-1);
-  }
-  boost::filesystem::path path(argv[0]);
-  if (boost::filesystem::is_regular_file(path)) 
-  {
-    std::cout << "yes" << std::endl;
-  }
+namespace bf = boost::filesystem;
 
-  return 0;
+int main(int argc, char** argv) {
+  crowd::CLIApp app;
+  auto option = crowd::parse_cli_option(argc, argv);
+  COMMAND cmd = std::get<0>(option);
+  if (COMMAND::BUILD == cmd) {
+    bf::path path = std::get<1>(option);
+    app.build(path);
+    return 0;
+  } else {
+    cerr << "Can not support the command for the moment." << endl;
+    return -1;
+  }
 }

@@ -3,33 +3,23 @@ project(crowd)
 
 enable_testing()
 
-# if(CMAKE_GENERATOR STREQUAL Xcode)
-#     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/build/Debug)
-#     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/build/Release)
-#     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/build/Debug)
-#     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/build/Release)
-#     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/build/Debug)
-#     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/build/Release)
-# endif()
-
-if(MSVC)
+if (MSVC)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_LIBS ON)
   set(Boost_USE_STATIC_RUNTIME OFF)
   set(BOOST_ALL_DYN_LINK OFF)
-else()
+else ()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-endif()
-
+endif ()
 
 find_package(Boost 1.60.0 REQUIRED COMPONENTS
-  system filesystem thread regex date_time unit_test_framework)
-if(Boost_FOUND)
+    system filesystem thread regex date_time unit_test_framework)
+if (Boost_FOUND)
   message(STATUS "Found Boost Libary: ${Boost_LIBRARIES}.")
   include_directories(SYSTEM ${Boost_INCLUDE_DIR})
-else()
+else ()
   message(FATAL_ERROR "Boost Libary Not Found.")
-endif()
+endif ()
 
 set(EXT_ROOT "${CMAKE_SOURCE_DIR}/ext")
 
@@ -46,13 +36,19 @@ add_subdirectory(ext)
 add_subdirectory(${MSTCH_DIR})
 
 set(HEADER_FILES
-  main.hpp
-  error.hpp
-  parser.hpp)
+    main.hpp
+    biz.hpp
+    file.hpp
+    cli.hpp
+    error.hpp
+    parser.hpp)
 set(SOURCE_FILES
-  main.cpp
-  error.cpp
-  parser.cpp)
+    main.cpp
+    biz.cpp
+    file.cpp
+    cli.cpp
+    error.cpp
+    parser.cpp)
 
 add_subdirectory(test)
 

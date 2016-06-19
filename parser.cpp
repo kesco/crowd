@@ -9,52 +9,53 @@
 using namespace std;
 
 namespace {
-inline char *copy_std_str(const std::string str) {
-  char *copy = new char[str.size() + 1];
-  std::copy(str.begin(), str.end(), copy);
-  copy[str.size()] = '\0';
-  return copy;
-}
+  inline char *copy_std_str(const string str) {
+    char *copy = new char[str.size() + 1];
+    std::copy(str.begin(), str.end(), copy);
+    copy[str.size()] = '\0';
+    return copy;
+  }
 }
 
 namespace crowd {
-MarkdownParser::MarkdownParser(MarkdownType type, int nest_level) {
-  render_ = type == MarkdownType::NORMAL
-                ? hoedown_html_renderer_new((hoedown_html_flags)0, 0)
-                : hoedown_html_toc_renderer_new(nest_level);
-  doc_ = hoedown_document_new(render_, (hoedown_extensions)0, DEF_MAX_NESTING);
-}
-
-MarkdownParser::~MarkdownParser() {
-  hoedown_document_free(doc_);
-  hoedown_html_renderer_free(render_);
-}
-
-std::string MarkdownParser::parse(const std::string &str) const {
-  if (str.empty()) {
-    return EMPTY_STRING;
-  } else {
-    char *c_str = copy_std_str(str);
-    std::size_t size = strlen(c_str);
-    hoedown_buffer *html = hoedown_buffer_new(size);
-    hoedown_document_render(doc_, html, (uint8_t *)c_str, size);
-    std::string ret(reinterpret_cast<char *>(html->data));
-    delete[] c_str;
-    hoedown_buffer_free(html);
-    return ret;
+  MarkdownParser::MarkdownParser(MarkdownType type, int nest_level) {
+    render_ = type == MarkdownType::NORMAL
+              ? hoedown_html_renderer_new((hoedown_html_flags) 0, 0)
+              : hoedown_html_toc_renderer_new(nest_level);
+    doc_ = hoedown_document_new(render_, (hoedown_extensions) 0,
+                                DEF_MAX_NESTING);
   }
-}
 
-string MarkdownParser::parse(ifstream &file) const {
-  if (!file.is_open()) {
-    throw IOException("Can not open file.");
+  MarkdownParser::~MarkdownParser() {
+    hoedown_document_free(doc_);
+    hoedown_html_renderer_free(render_);
   }
-  string md;
-  string line;
-  while (getline(file, line)) {
-    md += line;
-    md.push_back('\n');
+
+  string MarkdownParser::parse(const string &str) const {
+    if (str.empty()) {
+      return EMPTY_STRING;
+    } else {
+      char *c_str = copy_std_str(str);
+      size_t size = strlen(c_str);
+      hoedown_buffer *html = hoedown_buffer_new(size);
+      hoedown_document_render(doc_, html, (uint8_t *) c_str, size);
+      string ret(reinterpret_cast<char *>(html->data));
+      delete[] c_str;
+      hoedown_buffer_free(html);
+      return ret;
+    }
   }
-  return parse(md);
-}
+
+  string MarkdownParser::parse(ifstream &file) const {
+    if (!file.is_open()) {
+      throw IOException("Can not open file.");
+    }
+    string md;
+    string line;
+    while (getline(file, line)) {
+      md += line;
+      md.push_back('\n');
+    }
+    return parse(md);
+  }
 }
