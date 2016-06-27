@@ -10,15 +10,9 @@ title: Android判断手机号码分属
 
 ## Android上获取IMSI码
 
-首先，需要声明权限：
-
-```xml
-<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-```
-
 通过`Context`上下文获取IMSI：
 
-```java
+```
 TelephonyManager tel = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 String imsi = tel.getSubscriberId();
 ```

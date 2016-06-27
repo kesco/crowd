@@ -4,7 +4,8 @@
 
 namespace crowd {
   enum class ERROR_TYPE {
-    FILE_NOT_EXIST
+    FILE_NOT_EXIST,
+    IS_NOT_DIR
   };
 
   struct Exception : std::runtime_error {
@@ -20,8 +21,9 @@ namespace crowd {
   };
 
   struct IOException : Exception {
-    IOException(const std::string &what)
-        : Exception(what, ERROR_TYPE::FILE_NOT_EXIST) { }
+    explicit IOException(const std::string &what,
+                         ERROR_TYPE type = ERROR_TYPE::FILE_NOT_EXIST)
+        : Exception(what, type) { }
 
     virtual ~IOException() { }
   };

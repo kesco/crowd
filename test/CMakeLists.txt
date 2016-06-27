@@ -30,7 +30,7 @@ set(REGEX_TEST_FILES
 add_executable(test_regex ${REGEX_TEST_FILES})
 set_target_properties(test_regex PROPERTIES
     CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/test)
-target_link_libraries(test_regex ${Boost_LIBRARIES} hoedown)
+target_link_libraries(test_regex ${Boost_LIBRARIES} hoedown yaml)
 add_test(NAME test_regex
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test
     COMMAND ${PROJECT_BINARY_DIR}/test/test_regex)

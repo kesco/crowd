@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace crowd {
   struct Post {
@@ -15,7 +16,9 @@ namespace crowd {
 
     virtual ~Post();
 
-    const std::string& title() const;
+    const std::string &title() const;
+
+    const std::string &content() const;
 
     Post &operator=(Post &&);
 
@@ -25,5 +28,26 @@ namespace crowd {
     boost::filesystem::path path_;
     std::string *title_ = nullptr;
     std::string *content_ = nullptr;
+  };
+
+  struct Theme {
+    explicit Theme(const boost::filesystem::path &path = "");
+
+    std::string post_tempalte() const;
+
+  private:
+    bool isValid() const;
+
+    boost::filesystem::path path_;
+  };
+
+  struct Config {
+    explicit Config(const boost::filesystem::path &);
+
+    const Theme &theme() const;
+
+  private:
+    Theme theme_;
+    boost::filesystem::path path_;
   };
 }

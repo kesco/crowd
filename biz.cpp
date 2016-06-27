@@ -2,6 +2,8 @@
 #include "file.hpp"
 #include "error.hpp"
 
+#include "yaml-cpp/yaml.h"
+
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -99,4 +101,51 @@ namespace crowd {
   const string &Post::title() const {
     return title_ == nullptr ? EMPTY_STR : *title_;
   }
+
+  const string &Post::content() const {
+    return content_ == nullptr ? EMPTY_STR : *content_;
+  }
+
+  Theme::Theme(const boost::filesystem::path &path) : path_(path) {
+  }
+
+  string Theme::post_tempalte() const {
+    bf::path post_temp_path = path_;
+    post_temp_path.append("post.mustache");
+    bool x = isValid();
+    bool y = bf::is_regular_file(post_temp_path);
+    if (!isValid() || !bf::is_regular_file(post_temp_path)) {
+      return EMPTY_STR;
+    }
+    return string_from_file(post_temp_path.string());
+  }
+
+  bool Theme::isValid() const {
+    return !path_.empty() && bf::is_directory(path_);
+  }
+
+  Config::Config(const boost::filesystem::path &path) : path_(path) {
+    if (bf::is_regular_file(path_)) {
+      auto yaml = YAML::LoadFile(path_.string());
+      bf::path theme_path = path_.parent_path();
+      theme_path.append("themes");
+      string theme_name;
+      if (yaml["theme"]) {
+        theme_name = yaml["theme"].as<string>();
+      } else {
+        theme_name = EMPTY_STR;
+      }
+      theme_path.append(theme_name);
+      theme_ = Theme(theme_path);
+    } else {
+      throw IOException("Has not config file.");
+    }
+  }
+
+  const Theme &Config::theme() const {
+    return theme_;
+  }
 }
+
+
+

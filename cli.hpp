@@ -11,12 +11,16 @@ namespace crowd {
     BUILD, SERVER, INIT, UNSUPPORT
   };
 
+
   struct CLIApp {
-    CLIApp() { }
+    CLIApp();
 
     virtual ~CLIApp() { }
 
     void build(boost::filesystem::path &);
+
+  private:
+    boost::filesystem::path temp_dir_;
   };
 
   std::pair<COMMAND, boost::filesystem::path> parse_cli_option(int argc,
