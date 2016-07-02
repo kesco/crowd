@@ -1,5 +1,7 @@
 #pragma once
 
+#include "parser.hpp"
+
 #include <boost/filesystem.hpp>
 
 #include <vector>
@@ -10,9 +12,9 @@ namespace crowd {
   struct Post {
     explicit Post(const boost::filesystem::path &);
 
-    explicit Post(const Post &);
+    Post(const Post &);
 
-    explicit Post(Post &&);
+    Post(Post &&);
 
     virtual ~Post();
 
@@ -25,20 +27,29 @@ namespace crowd {
     bool load();
 
   private:
-    boost::filesystem::path path_;
-    std::string *title_ = nullptr;
-    std::string *content_ = nullptr;
+    boost::filesystem::path _path;
+    std::string *_title = nullptr;
+    std::string *_content = nullptr;
   };
 
   struct Theme {
     explicit Theme(const boost::filesystem::path &path = "");
 
-    std::string post_tempalte() const;
+    Theme(const Theme &);
+
+    Theme(Theme &&);
+
+    Theme &operator=(const Theme &);
+
+    std::string post_template();
+
+    const boost::filesystem::path &path() const;
 
   private:
     bool isValid() const;
 
-    boost::filesystem::path path_;
+    boost::filesystem::path _path;
+    std::string _post_template;
   };
 
   struct Config {
@@ -46,8 +57,30 @@ namespace crowd {
 
     const Theme &theme() const;
 
+    const boost::filesystem::path theme_path() const;
+
   private:
-    Theme theme_;
-    boost::filesystem::path path_;
+    Theme _theme;
+    boost::filesystem::path _path;
+  };
+
+  struct Blog {
+    typedef std::vector<Post> PostList;
+
+    explicit Blog(const Config &);
+
+    Blog(Blog &&);
+
+    void posts(PostList *);
+
+    const PostList *posts() const;
+
+    void write_to(boost::filesystem::path &);
+
+  private:
+    std::unique_ptr<Parser> _parser;
+    Config _config;
+    Theme _theme;
+    std::unique_ptr<PostList> _posts;
   };
 }

@@ -19,16 +19,16 @@ namespace {
 
 namespace crowd {
   MarkdownParser::MarkdownParser(MarkdownType type, int nest_level) {
-    render_ = type == MarkdownType::NORMAL
+    _render = type == MarkdownType::NORMAL
               ? hoedown_html_renderer_new((hoedown_html_flags) 0, 0)
               : hoedown_html_toc_renderer_new(nest_level);
-    doc_ = hoedown_document_new(render_, (hoedown_extensions) 0,
+    _doc = hoedown_document_new(_render, (hoedown_extensions) 0,
                                 DEF_MAX_NESTING);
   }
 
   MarkdownParser::~MarkdownParser() {
-    hoedown_document_free(doc_);
-    hoedown_html_renderer_free(render_);
+    hoedown_document_free(_doc);
+    hoedown_html_renderer_free(_render);
   }
 
   string MarkdownParser::parse(const string &str) const {
@@ -38,7 +38,7 @@ namespace crowd {
       char *c_str = copy_std_str(str);
       size_t size = strlen(c_str);
       hoedown_buffer *html = hoedown_buffer_new(size);
-      hoedown_document_render(doc_, html, (uint8_t *) c_str, size);
+      hoedown_document_render(_doc, html, (uint8_t *) c_str, size);
       string ret(reinterpret_cast<char *>(html->data));
       delete[] c_str;
       hoedown_buffer_free(html);

@@ -20,7 +20,7 @@ namespace crowd {
     void build(boost::filesystem::path &);
 
   private:
-    boost::filesystem::path temp_dir_;
+    boost::filesystem::path _temp_dir;
   };
 
   std::pair<COMMAND, boost::filesystem::path> parse_cli_option(int argc,

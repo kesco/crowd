@@ -29,7 +29,7 @@ namespace crowd {
     virtual std::string parse(std::ifstream &) const override;
 
   private:
-    hoedown_renderer *render_;
-    hoedown_document *doc_;
+    hoedown_renderer *_render;
+    hoedown_document *_doc;
   };
 }
