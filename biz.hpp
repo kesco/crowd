@@ -3,6 +3,7 @@
 #include "parser.hpp"
 
 #include <boost/filesystem.hpp>
+#include <boost/date_time.hpp>
 
 #include <vector>
 #include <string>
@@ -22,14 +23,17 @@ namespace crowd {
 
     const std::string &content() const;
 
+    const boost::gregorian::date& date() const;
+
     Post &operator=(Post &&);
 
     bool load();
 
   private:
     boost::filesystem::path _path;
-    std::string *_title = nullptr;
-    std::string *_content = nullptr;
+    std::unique_ptr<std::string> _title;
+    std::unique_ptr<std::string> _content;
+    boost::gregorian::date _date;
   };
 
   struct Theme {
@@ -55,13 +59,11 @@ namespace crowd {
   struct Config {
     explicit Config(const boost::filesystem::path &);
 
-    const Theme &theme() const;
-
-    const boost::filesystem::path theme_path() const;
+    const boost::filesystem::path &theme_path() const;
 
   private:
-    Theme _theme;
     boost::filesystem::path _path;
+    boost::filesystem::path _theme_path;
   };
 
   struct Blog {

@@ -34,3 +34,12 @@ target_link_libraries(test_regex ${Boost_LIBRARIES} hoedown yaml mstch)
 add_test(NAME test_regex
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test
     COMMAND ${PROJECT_BINARY_DIR}/test/test_regex)
+
+add_executable(test_boost test_boost.cpp)
+set_target_properties(test_boost PROPERTIES
+    CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/test)
+target_link_libraries(test_boost ${Boost_LIBRARIES})
+add_test(NAME test_boost
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test
+    COMMAND ${PROJECT_BINARY_DIR}/test/test_boost)
+

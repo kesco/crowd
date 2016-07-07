@@ -12,58 +12,55 @@
 
 using namespace std;
 namespace bf = boost::filesystem;
+namespace bg = boost::gregorian;
 
 namespace {
   const string EMPTY_STR = "";
 }
 
 namespace crowd {
-  Post::Post(const boost::filesystem::path &path) : _path(path) {
+  Post::Post(const boost::filesystem::path &path) : _path(path),
+                                                    _title(unique_ptr<string>(
+                                                        nullptr)),
+                                                    _content(unique_ptr<string>(
+                                                        nullptr)),
+                                                    _date(bg::date()) {
   }
 
   Post::Post(const Post &post) : _path(post._path) {
     if (post._title != nullptr) {
-      _title = new string(*post._title);
+      _title = unique_ptr<string>(new string(*post._title));
+    } else {
+      _title = unique_ptr<string>(nullptr);
     }
     if (post._content != nullptr) {
-      _content = new string(*post._content);
+      _content = unique_ptr<string>(new string(*post._content));
+    } else {
+      _content = unique_ptr<string>(nullptr);
     }
+    _date = bg::date(post._date);
   }
 
   Post::Post(Post &&post) {
     _path = move(post._path);
-    if (post._title != nullptr) {
-      _title = post._title;
-      post._title = nullptr;
-    }
-    if (post._content != nullptr) {
-      _content = post._content;
-      post._content = nullptr;
-    }
+    _title = move(post._title);
+    _content = move(post._content);
+//    _date = move(post._date);
+    _date = post._date;
   }
 
   Post &Post::operator=(Post &&post) {
     if (this != &post) {
       _path = move(post._path);
-      if (post._title != nullptr) {
-        _title = post._title;
-        post._title = nullptr;
-      }
-      if (post._content != nullptr) {
-        _content = post._content;
-        post._content = nullptr;
-      }
+      _title = move(post._title);
+      _content = move(post._content);
+//      _date = move(post._date);
+      _date = post._date;
     }
     return *this;
   }
 
   Post::~Post() {
-    if (_title != nullptr) {
-      delete _title;
-    }
-    if (_content != nullptr) {
-      delete _content;
-    }
   }
 
 
@@ -73,10 +70,11 @@ namespace crowd {
       stringstream ss(load_str);
       int nu = 0;
       string md;
-      string config;
       string line;
       boost::regex pattern("^\\+{3}\\s*");
       boost::regex title_pattern("^title\\:");
+      boost::regex date_pattern("^date\\:");
+      boost::regex tag_pattern("^tags\\:");
       boost::smatch what;
       while (getline(ss, line, '\n')) {
         if (nu > 1) {
@@ -87,12 +85,19 @@ namespace crowd {
         } else if (boost::regex_match(line, pattern)) {
           nu += 1;
         } else if (boost::regex_search(line, what, title_pattern)) {
-          config = boost::algorithm::erase_first_copy(line, what[0]);
+          string config = boost::algorithm::erase_first_copy(line, what[0]);
           boost::algorithm::trim(config);
-          _title = new string(config);
+          _title.reset(new string(config));
+        } else if (boost::regex_search(line, what, tag_pattern)) {
+          string tags = boost::algorithm::erase_first_copy(line, what[0]);
+          boost::algorithm::trim(tags);
+        } else if (boost::regex_search(line, what, date_pattern)) {
+          string date = boost::algorithm::erase_first_copy(line, what[0]);
+          boost::algorithm::trim(date);
+          _date = bg::from_simple_string(date);
         }
       }
-      _content = new string(md);
+      _content.reset(new string(md));
       return true;
     } catch (IOException &ex) {
       return false;
@@ -105,6 +110,10 @@ namespace crowd {
 
   const string &Post::content() const {
     return _content == nullptr ? EMPTY_STR : *_content;
+  }
+
+  const boost::gregorian::date &Post::date() const {
+    return _date;
   }
 
   Theme::Theme(const boost::filesystem::path &path) : _path(path),
@@ -150,30 +159,26 @@ namespace crowd {
     return _path;
   }
 
-  Config::Config(const boost::filesystem::path &path) : _path(path) {
+  Config::Config(const boost::filesystem::path &path) : _path(path),
+                                                        _theme_path(
+                                                            path.parent_path()) {
     if (bf::is_regular_file(_path)) {
       auto yaml = YAML::LoadFile(_path.string());
-      bf::path theme_path = _path.parent_path();
-      theme_path.append("themes");
+      _theme_path.append("themes");
       string theme_name;
       if (yaml["theme"]) {
         theme_name = yaml["theme"].as<string>();
       } else {
         theme_name = EMPTY_STR;
       }
-      theme_path.append(theme_name);
-      _theme = Theme(theme_path);
+      _theme_path.append(theme_name);
     } else {
       throw IOException("Has not config file.");
     }
   }
 
-  const Theme &Config::theme() const {
-    return _theme;
-  }
-
-  const boost::filesystem::path Config::theme_path() const {
-    return _theme.path();
+  const boost::filesystem::path &Config::theme_path() const {
+    return _theme_path;
   }
 
   Blog::Blog(const crowd::Config &config) : _parser(
@@ -211,7 +216,8 @@ namespace crowd {
       try {
         bool is_rewrite = bf::exists(file_path);
         string_to_file(file_path.string(), convert, is_rewrite);
-        cout << post.title() << endl;
+        cout << post.title() << ":" <<
+        bg::to_iso_extended_string(post.date()) << endl;
       } catch (IOException &ex) {
         cerr << ex.what() << endl;
       }

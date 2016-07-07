@@ -1,5 +1,7 @@
 +++
 title: Effective C++
+tags: C++, Coding
+date: 2016-07-03
 +++
 # Effective C++
 
