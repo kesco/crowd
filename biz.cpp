@@ -11,6 +11,7 @@
 #include <iostream>
 
 using namespace std;
+namespace ba = boost::algorithm;
 namespace bf = boost::filesystem;
 namespace bg = boost::gregorian;
 
@@ -24,10 +25,13 @@ namespace crowd {
                                                         nullptr)),
                                                     _content(unique_ptr<string>(
                                                         nullptr)),
-                                                    _date(bg::date()) {
+                                                    _date(bg::date()),
+                                                    _tags(vector<string>()) {
   }
 
-  Post::Post(const Post &post) : _path(post._path) {
+  Post::Post(const Post &post) : _path(post._path),
+                                 _date(bg::date(post._date)),
+                                 _tags(vector<string>(post._tags)) {
     if (post._title != nullptr) {
       _title = unique_ptr<string>(new string(*post._title));
     } else {
@@ -38,15 +42,13 @@ namespace crowd {
     } else {
       _content = unique_ptr<string>(nullptr);
     }
-    _date = bg::date(post._date);
   }
 
-  Post::Post(Post &&post) {
-    _path = move(post._path);
-    _title = move(post._title);
-    _content = move(post._content);
-//    _date = move(post._date);
-    _date = post._date;
+  Post::Post(Post &&post) : _path(move(post._path)),
+                            _title(move(post._title)),
+                            _content(move(post._content)),
+                            _date(post._date),
+                            _tags(move(post._tags)) {
   }
 
   Post &Post::operator=(Post &&post) {
@@ -54,8 +56,8 @@ namespace crowd {
       _path = move(post._path);
       _title = move(post._title);
       _content = move(post._content);
-//      _date = move(post._date);
       _date = post._date;
+      _tags = move(post._tags);
     }
     return *this;
   }
@@ -85,15 +87,18 @@ namespace crowd {
         } else if (boost::regex_match(line, pattern)) {
           nu += 1;
         } else if (boost::regex_search(line, what, title_pattern)) {
-          string config = boost::algorithm::erase_first_copy(line, what[0]);
-          boost::algorithm::trim(config);
+          string config = ba::erase_first_copy(line, what[0]);
+          ba::trim(config);
           _title.reset(new string(config));
         } else if (boost::regex_search(line, what, tag_pattern)) {
-          string tags = boost::algorithm::erase_first_copy(line, what[0]);
-          boost::algorithm::trim(tags);
+          string tags = ba::erase_first_copy(line, what[0]);
+          ba::split(_tags, tags, ba::is_any_of(","));
+          for (auto &tag:_tags) {
+            ba::trim(tag);
+          }
         } else if (boost::regex_search(line, what, date_pattern)) {
-          string date = boost::algorithm::erase_first_copy(line, what[0]);
-          boost::algorithm::trim(date);
+          string date = ba::erase_first_copy(line, what[0]);
+          ba::trim(date);
           _date = bg::from_simple_string(date);
         }
       }

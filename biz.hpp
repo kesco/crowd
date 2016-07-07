@@ -34,6 +34,7 @@ namespace crowd {
     std::unique_ptr<std::string> _title;
     std::unique_ptr<std::string> _content;
     boost::gregorian::date _date;
+    std::vector<std::string> _tags;
   };
 
   struct Theme {
